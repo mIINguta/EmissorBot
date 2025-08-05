@@ -11,8 +11,6 @@ using WindowsInput.Native;
 using EmissorBot;
 using System.Drawing;
 using System.Security.Cryptography.X509Certificates;
-using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
 
 namespace EmissorBot
 {
@@ -31,9 +29,9 @@ namespace EmissorBot
         string emitente;
         string destinatario;
         string vencimento;
+        int codProduto;
         double subtotalProd;
         double valorTotalNota;
-        int codigo;
 
 
         public Funcionalidades()
@@ -45,9 +43,9 @@ namespace EmissorBot
         public async Task TratarDados(string infoNota)
         {
 
-            descricao = Regex.Match(infoNota, padraoDesc, RegexOptions.Singleline).Groups[1].Value.Trim();
+            descricao = Regex.Match(infoNota, padraoDesc, RegexOptions.Singleline).ToString();
             emitente = Regex.Match(infoNota, @"EMITENTE:\s*(.*)").Groups[1].Value.Trim();
-            destinatario = Regex.Match(infoNota, @"DESTINATARIO:.\s*(.*)").Groups[1].Value.Trim().ToUpper();
+            destinatario = Regex.Match(infoNota, @"DESTINATARIO:.\s*(.*)").Groups[1].Value.Trim();
             vencimento = Regex.Match(infoNota, padraoVencimento).ToString();
 
             MatchCollection produtosNF = Regex.Matches(infoNota, padraoProd);
@@ -59,7 +57,7 @@ namespace EmissorBot
                 nomeProd = (p.Groups[2].Value);
                 valorUn = double.Parse(p.Groups[3].Value);
                 descUnMed = (p.Groups[4].Value);
-
+                
 
                 produtos.Add(
                     new Produto
@@ -68,30 +66,15 @@ namespace EmissorBot
                         Nome = nomeProd,
                         ValorUn = valorUn,
                         UnidadeMed = descUnMed,
-
+                    
                     });
-
+            
             }
 
-            if(destinatario == "ARM FILIAL")
-            {
-                destinatario = "ARM ARMAZENS GERAIS E LOGISTICAS LTDA - FILIAL";
-            }
-            else if(destinatario == "ARM MATRIZ")
-            {
-                destinatario = "ARM ARMAZÉNS GERAIS & LOGÍSTICA LTDA - MATRIZ";
-            }
-            else if(destinatario == "NM ENGENHARIA")
-            {
-                destinatario = "NM-ENGENHARIA LTDA";
-            }
-
-            if(emitente == "A SANTOS DE SANTANA REFEIÇÕES")
-            {
-                emitente = "A SANTOS DE SANTANA REFEICOES";
-            }
-
-
+           
+            Console.WriteLine(emitente);
+            Console.WriteLine(destinatario);
+            
         }
         public async Task IniciarEmissor()
         {
@@ -121,7 +104,7 @@ namespace EmissorBot
         } */
 
 
-        public async Task VerificarJanelas(string tipoEmissao)
+        public async Task VerificarJanelas()
         {
             Process processo = null;
             int tentativas = 0;
@@ -240,7 +223,7 @@ namespace EmissorBot
                         {
                             await Task.Delay(300);
                             procurarJanelas = false;
-                            await IniciarEmissao(emitente, tipoEmissao);
+                            await IniciarEmissao(emitente);
                         }
 
                     }
@@ -289,18 +272,18 @@ namespace EmissorBot
         }
 
 
-        public async Task IniciarEmissao(string emitente, string tipoDeEmissao)
+        public async Task IniciarEmissao(string emitente)
         {
-           await SelecionarEmitente(emitente);
-           await DadosDaNota();
-           await SelecionarDestinatario(destinatario);
-           await SelecionarProdutos(produtos, tipoDeEmissao);
-           await CalcularTotal();
-           await OPTransporte();
-           await OPCobranca();
-           await OPDescricao();
-           await OPPagamentos();
-           // await ValidarNT(); */
+            await SelecionarEmitente(emitente);
+            await DadosDaNota();
+            await SelecionarDestinatario(destinatario);
+            await SelecionarProdutos(produtos);
+            await CalcularTotal();
+            await OPTransporte();
+            await OPCobranca();
+            await OPDescricao();
+            await OPPagamentos();
+            // await ValidarNT();
 
         }
 
@@ -402,7 +385,7 @@ namespace EmissorBot
             // destino operação (aqui colocar um IF para escolher se é dentro ou fora do estado.
             sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
             await Task.Delay(300);
-            if (destinatario == "LODI" || destinatario == "EVANERIO")
+            if (destinatario == "LODI")
             {
                 sim.Keyboard.KeyPress(VirtualKeyCode.VK_2);
                 await Task.Delay(300);
@@ -490,170 +473,83 @@ namespace EmissorBot
         }
 
 
-        public async Task SelecionarProdutos(List<Produto> produtos, string tipoEmissao)
+        public async Task SelecionarProdutos(List<Produto> produtos)
         {
             int codigo = 0;
-
-            Console.WriteLine(tipoEmissao);
-
-            if (tipoEmissao == "simples")
+            foreach (var item in produtos)
             {
-                foreach (var item in produtos)
+                subtotalProd = item.Quantidade * item.ValorUn;
+                valorTotalNota += subtotalProd;
+
+                // clicando botão incluir
+                await Task.Delay(400);
+                sim.Mouse.MoveMouseTo(3000, 52000);
+                await Task.Delay(400);
+                sim.Mouse.LeftButtonClick();
+                await Task.Delay(5000);
+
+                // inserir tributos (colocar if aqui para diferenciar os emitentes)
+                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+                await Task.Delay(900);
+                // situação tributária
+                for (int i = 0; i < 5; i++)
                 {
-                    subtotalProd = item.Quantidade * item.ValorUn;
-                    valorTotalNota += subtotalProd;
-
-                    // clicando botão incluir
-                    await Task.Delay(4000);
-                    sim.Mouse.MoveMouseTo(3000, 52000);
-                    await Task.Delay(400);
-                    sim.Mouse.LeftButtonClick();
-                    await Task.Delay(5000);
-
-                    // inserir tributos (colocar if aqui para diferenciar os emitentes)
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-                    await Task.Delay(900);
-                    // situação tributária
-                    for (int i = 0; i < 5; i++)
-                    {
-                        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                        await Task.Delay(300);
-                    }
-                    await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_1);
-                    await Task.Delay(300);
                     sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                     await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_0);
-                    await Task.Delay(400);
-
-                    // opção ipi
-                    sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-                    await Task.Delay(300);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                        await Task.Delay(300);
-                    }
-                    sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-                    await Task.Delay(500);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-                    await Task.Delay(500);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-
-                    // caminhar para opção 7
-                    await Task.Delay(500);
-                    await PisConfins(tipoEmissao, 0, "0");
-                    //correndo para confins
-                    sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-                    await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                    await Task.Delay(300);
-                    sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-                    await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-                    await Task.Delay(500);
-
-                    await PisConfins(tipoEmissao, 0, "0");
-
-                    await Task.Delay(300);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                        await Task.Delay(600);
-                    }
-                    sim.Keyboard.KeyPress(VirtualKeyCode.LEFT);
-                    await Task.Delay(3000);
-
-                    // inserir dados do produto
-                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                    await Task.Delay(300);
-                    await DadosProd(item, codigo);
                 }
-            }
-            else
-            {
-                foreach (var item in produtos)
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.VK_1);
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.VK_0);
+                await Task.Delay(400);
+
+                // opção ipi
+                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+                await Task.Delay(300);
+                for (int i = 0; i < 3; i++)
                 {
-                    subtotalProd = item.Quantidade * item.ValorUn;
-                    valorTotalNota += subtotalProd;
-
-                    // clicando botão incluir
-                    await Task.Delay(4000);
-                    sim.Mouse.MoveMouseTo(3000, 52000);
-                    await Task.Delay(400);
-                    sim.Mouse.LeftButtonClick();
-                    await Task.Delay(5000);
-
-                    // inserir tributos (colocar if aqui para diferenciar os emitentes)
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-                    await Task.Delay(900);
-                    // situação tributária
-                    for (int i = 0; i < 5; i++)
-                    {
-                        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                        await Task.Delay(300);
-                    }
-                    await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_4);
-                    await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_1);// selecionando a opção 41.
-                    await Task.Delay(300);
                     sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                     await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_0);
-                    await Task.Delay(400);
-
-                    // opção ipi
-                    sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-                    await Task.Delay(300);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                        await Task.Delay(300);
-                    }
-                    sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-                    await Task.Delay(500);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-                    await Task.Delay(500);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-
-                    // caminhar para opção 7
-                    await Task.Delay(500);
-                    await PisConfins(tipoEmissao, subtotalProd, "0,65");
-
-                    //correndo para confins
-                    sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-                    await Task.Delay(300);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                        await Task.Delay(600);
-                    }
-                    sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-                    await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-                    await Task.Delay(500);
-
-                    await PisConfins(tipoEmissao, subtotalProd, "3");
-
-                    await Task.Delay(300);
-                    for (int i = 0; i < 4; i++)
-                    {
-                        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                        await Task.Delay(600);
-                    }
-                    sim.Keyboard.KeyPress(VirtualKeyCode.LEFT);
-                    await Task.Delay(3000);
-
-                    // inserir dados do produto
-                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                    await Task.Delay(300);
-                    await DadosProd(item, codigo);
                 }
-            }
+                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+                await Task.Delay(500);
+                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+                await Task.Delay(500);
+                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
 
-            }
+                // caminhar para opção 7
+                await Task.Delay(500);
+                await PisConfins();
+                //correndo para confins
+                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+                await Task.Delay(500);
+
+                await PisConfins();
+
+                await Task.Delay(300);
+                for (int i = 0; i < 3; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(600);
+                }
+                sim.Keyboard.KeyPress(VirtualKeyCode.LEFT);
+                await Task.Delay(3000);
+
+                // inserir dados do produto
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+               await DadosProd(item, codigo);
+            } 
+        }
+
 
         public async Task DadosProd(Produto item, int codigo)
         {
@@ -678,7 +574,7 @@ namespace EmissorBot
                 await Task.Delay(600);
             }
             // aqui eu tenho que criar uma lógica que abrange se os destinatários são do RJ ou não.
-            if (destinatario == "LODI" || destinatario == "EVANERIO")
+            if (destinatario == "LODI")
             {
                 sim.Keyboard.TextEntry("6102");
             }
@@ -726,175 +622,134 @@ namespace EmissorBot
         }
 
 
-        public async Task PisConfins(string tipoEmissao, double subtotalProd, string aliquota)
+        public async Task PisConfins()
         {
 
             await Task.Delay(300);
-
-            if (tipoEmissao == "tributacao normal")
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+            for (int i = 0; i < 8; i++)
             {
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
                 await Task.Delay(300);
-                for (int i = 0; i < 2; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
-                    await Task.Delay(300);
-                }
-                sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                sim.Keyboard.TextEntry(subtotalProd.ToString());
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                sim.Keyboard.TextEntry(aliquota);
-                await Task.Delay(300);
-
             }
-            else
-            {
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                for (int i = 0; i < 8; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
-                    await Task.Delay(300);
-                }
-                sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-                await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(300);
 
-            }
         }
 
         public async Task CalcularTotal()
         {
-        //encaminhando para a aba totais.
-        await Task.Delay(5000);
-        for (int i = 0; i < 8; i++)
-        {
-            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            //encaminhando para a aba totais.
+            await Task.Delay(5000);
+            for (int i = 0; i < 8; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+            }
             await Task.Delay(300);
-        }
-        await Task.Delay(300);
-        sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+            sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
 
-        // clicar no botão calcular
+            // clicar no botão calcular
 
-        for (int i = 0; i < 3; i++)
-        {
-            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            for (int i = 0; i < 3; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+            }
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
             await Task.Delay(300);
-        }
-        sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-        await Task.Delay(300);
         }
 
         public async Task OPTransporte()
         {
 
-        //caminhar para aba transpote
+            //caminhar para aba transpote
 
-        sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-        await Task.Delay(300);
+            sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
 
-        for (int i = 0; i < 3; i++)
-        {
+            for (int i = 0; i < 3; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+            }
+            sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+            await Task.Delay(3000);
+            // sem ocorrencia de transporte (9)
+            await Task.Delay(5000);
             sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
             await Task.Delay(300);
-        }
-        sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-        await Task.Delay(300);
-        sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-        await Task.Delay(3000);
-        // sem ocorrencia de transporte (9)
-        await Task.Delay(5000);
-        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-        await Task.Delay(300);
-        sim.Keyboard.KeyPress(VirtualKeyCode.VK_9);
-        await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.VK_9);
+            await Task.Delay(300);
         }
 
         public async Task OPCobranca()
         {
-                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-                await Task.Delay(300);
+            // encaminhar para aba cobrança
+            sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+            sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
 
-            if (vencimento != "")
+            // colocando valores na cobrança
+            await Task.Delay(3000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+            sim.Keyboard.TextEntry("001");
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+            sim.Keyboard.TextEntry(valorTotalNota.ToString());
+            await Task.Delay(300);
+            for (int i = 0; i < 2; i++)
             {
-
-                // encaminhar para aba cobrança
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-
-                // colocando valores na cobrança
-                await Task.Delay(3000);
                 sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                 await Task.Delay(300);
-                sim.Keyboard.TextEntry("001");
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                sim.Keyboard.TextEntry(valorTotalNota.ToString());
-                await Task.Delay(300);
-                for (int i = 0; i < 2; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                    await Task.Delay(300);
-                }
-                sim.Keyboard.TextEntry(valorTotalNota.ToString());
-                await Task.Delay(300);
-
-                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-                //incluindo vencimento da cobrança
-                for (int i = 0; i < 12; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                    await Task.Delay(300);
-                }
-                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-                await Task.Delay(300);
-
-                sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-                await Task.Delay(3000);
-
-                sim.Keyboard.TextEntry("001");
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                sim.Keyboard.TextEntry(vencimento);
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                sim.Keyboard.TextEntry(valorTotalNota.ToString());
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-                await Task.Delay(3000);
-
-                //caminhar para aba descrição
-                for (int i = 0; i < 4; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                    await Task.Delay(300);
-                }
-                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
             }
-            else
+            sim.Keyboard.TextEntry(valorTotalNota.ToString());
+            await Task.Delay(300);
+
+            sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            //incluindo vencimento da cobrança
+            for (int i = 0; i < 12; i++)
             {
-                for(int i=0; i<2; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-                    await Task.Delay(300);
-                }
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
             }
+            sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
+
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(3000);
+
+            sim.Keyboard.TextEntry("001");
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+            sim.Keyboard.TextEntry(vencimento);
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+            sim.Keyboard.TextEntry(valorTotalNota.ToString());
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(3000);
+
+            for (int i = 0; i < 4; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+            }
+            sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
         }
-
 
         public async Task OPDescricao()
         {
@@ -962,51 +817,30 @@ namespace EmissorBot
             await Task.Delay(300);
             sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
 
-            //forma de pagamento
+
             //preenchendo informações de pagamento
 
             await Task.Delay(5000);
 
-            
-            if (emitente != "RAFAEL DE VASCONCELLOS DE SOUZA")
-            {  // percorrendo tipo
-                for (int i = 0; i < 14; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
-                    await Task.Delay(300);
-                }
-                await Task.Delay(300);
-                for (int i = 0; i < 2; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                    await Task.Delay(300);
-                }
-                await Task.Delay(300);
-                for (int i = 0; i < 3; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
-                    await Task.Delay(300);
-                }
-            }
-            else
+            // percorrendo tipo
+
+            for (int i = 0; i < 14; i++)
             {
-                // percorrendo tipo
-                for (int i = 0; i < 3; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
-                    await Task.Delay(300);
-                }
+                sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
                 await Task.Delay(300);
-                for (int i = 0; i < 2; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                    await Task.Delay(300);
-                }
-                for (int i = 0; i <2; i++)
-                {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
-                    await Task.Delay(300);
-                }
+            }
+            await Task.Delay(300);
+            for (int i = 0; i < 2; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+            }
+            await Task.Delay(300);
+
+            for (int i = 0; i < 3; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                await Task.Delay(300);
             }
 
             //indo para o botão de confirmar
