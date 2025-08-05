@@ -45,7 +45,7 @@ namespace EmissorBot
         public async Task TratarDados(string infoNota)
         {
 
-            descricao = Regex.Match(infoNota, padraoDesc, RegexOptions.Singleline).ToString().ToUpper();
+            descricao = Regex.Match(infoNota, padraoDesc, RegexOptions.Singleline).Groups[1].Value.Trim();
             emitente = Regex.Match(infoNota, @"EMITENTE:\s*(.*)").Groups[1].Value.Trim();
             destinatario = Regex.Match(infoNota, @"DESTINATARIO:.\s*(.*)").Groups[1].Value.Trim().ToUpper();
             vencimento = Regex.Match(infoNota, padraoVencimento).ToString();
@@ -84,6 +84,11 @@ namespace EmissorBot
             else if(destinatario == "NM ENGENHARIA")
             {
                 destinatario = "NM-ENGENHARIA LTDA";
+            }
+
+            if(emitente == "A SANTOS DE SANTANA REFEIÇÕES")
+            {
+                emitente = "A SANTOS DE SANTANA REFEICOES";
             }
 
 
@@ -286,19 +291,16 @@ namespace EmissorBot
 
         public async Task IniciarEmissao(string emitente, string tipoDeEmissao)
         {
-            //await SelecionarEmitente(emitente);
-           // await DadosDaNota();
-           // await SelecionarDestinatario(destinatario);
-            await SelecionarProdutos(produtos, tipoDeEmissao);
-            /* await CalcularTotal();
-            await OPTransporte();
-            if(emitente == "RAFAEL DE VASCONCELLOS DE SOUZA"){
-            pular a aba cobrança
-
-             await OPCobranca();
-             await OPDescricao();
-             await OPPagamentos();
-             // await ValidarNT(); */
+           await SelecionarEmitente(emitente);
+           await DadosDaNota();
+           await SelecionarDestinatario(destinatario);
+           await SelecionarProdutos(produtos, tipoDeEmissao);
+           await CalcularTotal();
+           await OPTransporte();
+           await OPCobranca();
+           await OPDescricao();
+           await OPPagamentos();
+           // await ValidarNT(); */
 
         }
 
@@ -653,7 +655,7 @@ namespace EmissorBot
 
             }
 
-            public async Task DadosProd(Produto item, int codigo)
+        public async Task DadosProd(Produto item, int codigo)
         {
 
             await Task.Delay(5000);
@@ -765,121 +767,134 @@ namespace EmissorBot
             }
         }
 
-public async Task CalcularTotal()
-{
-//encaminhando para a aba totais.
-await Task.Delay(5000);
-for (int i = 0; i < 8; i++)
-{
-    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-    await Task.Delay(300);
-}
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+        public async Task CalcularTotal()
+        {
+        //encaminhando para a aba totais.
+        await Task.Delay(5000);
+        for (int i = 0; i < 8; i++)
+        {
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+        }
+        await Task.Delay(300);
+        sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
 
-// clicar no botão calcular
+        // clicar no botão calcular
 
-for (int i = 0; i < 3; i++)
-{
-    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-    await Task.Delay(300);
-}
-sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-await Task.Delay(300);
-}
+        for (int i = 0; i < 3; i++)
+        {
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+        }
+        sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+        await Task.Delay(300);
+        }
 
-public async Task OPTransporte()
-{
+        public async Task OPTransporte()
+        {
 
-//caminhar para aba transpote
+        //caminhar para aba transpote
 
-sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-await Task.Delay(300);
+        sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+        await Task.Delay(300);
 
-for (int i = 0; i < 3; i++)
-{
-    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-    await Task.Delay(300);
-}
-sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-await Task.Delay(3000);
-// sem ocorrencia de transporte (9)
-await Task.Delay(5000);
-sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.VK_9);
-await Task.Delay(300);
-}
+        for (int i = 0; i < 3; i++)
+        {
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+        }
+        sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+        await Task.Delay(300);
+        sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+        await Task.Delay(3000);
+        // sem ocorrencia de transporte (9)
+        await Task.Delay(5000);
+        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+        await Task.Delay(300);
+        sim.Keyboard.KeyPress(VirtualKeyCode.VK_9);
+        await Task.Delay(300);
+        }
 
-public async Task OPCobranca()
-{
-// encaminhar para aba cobrança
-sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-await Task.Delay(300);
-sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-           
-
-            
-
-// colocando valores na cobrança
-await Task.Delay(3000);
-sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-await Task.Delay(300);
-sim.Keyboard.TextEntry("001");
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-await Task.Delay(300);
-sim.Keyboard.TextEntry(valorTotalNota.ToString());
-await Task.Delay(300);
-for (int i = 0; i < 2; i++)
-{
-    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-    await Task.Delay(300);
-}
-sim.Keyboard.TextEntry(valorTotalNota.ToString());
-await Task.Delay(300);
-
-sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-//incluindo vencimento da cobrança
-for (int i = 0; i < 12; i++)
-{
-    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-    await Task.Delay(300);
-}
-sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-await Task.Delay(300);
-
-sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-await Task.Delay(3000);
-
-sim.Keyboard.TextEntry("001");
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-await Task.Delay(300);
-sim.Keyboard.TextEntry(vencimento);
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-await Task.Delay(300);
-sim.Keyboard.TextEntry(valorTotalNota.ToString());
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-await Task.Delay(300);
-sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-            await Task.Delay(3000);
-
-            for (int i = 0; i < 4; i++)
-            {
+        public async Task OPCobranca()
+        {
+                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+                await Task.Delay(300);
                 sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                 await Task.Delay(300);
+                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+                await Task.Delay(300);
+
+            if (vencimento != "")
+            {
+
+                // encaminhar para aba cobrança
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+
+                // colocando valores na cobrança
+                await Task.Delay(3000);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+                sim.Keyboard.TextEntry("001");
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+                sim.Keyboard.TextEntry(valorTotalNota.ToString());
+                await Task.Delay(300);
+                for (int i = 0; i < 2; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(300);
+                }
+                sim.Keyboard.TextEntry(valorTotalNota.ToString());
+                await Task.Delay(300);
+
+                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+                //incluindo vencimento da cobrança
+                for (int i = 0; i < 12; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(300);
+                }
+                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+                await Task.Delay(300);
+
+                sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+                await Task.Delay(3000);
+
+                sim.Keyboard.TextEntry("001");
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+                sim.Keyboard.TextEntry(vencimento);
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+                sim.Keyboard.TextEntry(valorTotalNota.ToString());
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+                sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+                await Task.Delay(3000);
+
+                //caminhar para aba descrição
+                for (int i = 0; i < 4; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(300);
+                }
+                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
             }
-            sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+            else
+            {
+                for(int i=0; i<2; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+                    await Task.Delay(300);
+                }
+            }
         }
+
 
         public async Task OPDescricao()
         {
@@ -947,30 +962,51 @@ sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
             await Task.Delay(300);
             sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
 
-
+            //forma de pagamento
             //preenchendo informações de pagamento
 
             await Task.Delay(5000);
 
-            // percorrendo tipo
-
-            for (int i = 0; i < 14; i++)
-            {
-                sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+            
+            if (emitente != "RAFAEL DE VASCONCELLOS DE SOUZA")
+            {  // percorrendo tipo
+                for (int i = 0; i < 14; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                    await Task.Delay(300);
+                }
                 await Task.Delay(300);
+                for (int i = 0; i < 2; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(300);
+                }
+                await Task.Delay(300);
+                for (int i = 0; i < 3; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                    await Task.Delay(300);
+                }
             }
-            await Task.Delay(300);
-            for (int i = 0; i < 2; i++)
+            else
             {
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                // percorrendo tipo
+                for (int i = 0; i < 3; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                    await Task.Delay(300);
+                }
                 await Task.Delay(300);
-            }
-            await Task.Delay(300);
-
-            for (int i = 0; i < 3; i++)
-            {
-                sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
-                await Task.Delay(300);
+                for (int i = 0; i < 2; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(300);
+                }
+                for (int i = 0; i <2; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                    await Task.Delay(300);
+                }
             }
 
             //indo para o botão de confirmar
