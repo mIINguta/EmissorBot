@@ -33,7 +33,6 @@ namespace EmissorBot
         string vencimento;
         double subtotalProd;
         double valorTotalNota;
-        int codigo;
 
 
         public Funcionalidades()
@@ -73,20 +72,20 @@ namespace EmissorBot
 
             }
 
-            if(destinatario == "ARM FILIAL")
+            if (destinatario == "ARM FILIAL")
             {
                 destinatario = "ARM ARMAZENS GERAIS E LOGISTICAS LTDA - FILIAL";
             }
-            else if(destinatario == "ARM MATRIZ")
+            else if (destinatario == "ARM MATRIZ")
             {
                 destinatario = "ARM ARMAZÉNS GERAIS & LOGÍSTICA LTDA - MATRIZ";
             }
-            else if(destinatario == "NM ENGENHARIA")
+            else if (destinatario == "NM ENGENHARIA")
             {
                 destinatario = "NM-ENGENHARIA LTDA";
             }
 
-            if(emitente == "A SANTOS DE SANTANA REFEIÇÕES")
+            if (emitente == "A SANTOS DE SANTANA REFEIÇÕES")
             {
                 emitente = "A SANTOS DE SANTANA REFEICOES";
             }
@@ -102,23 +101,6 @@ namespace EmissorBot
             var processo = Process.GetProcessesByName("jp2launcher").FirstOrDefault();
             return processo != null;
         }
-
-        /* if (processo.MainWindowTitle.ToString() == "Novo Emissor")
-        {
-            sim.Keyboard.KeyPress(VirtualKeyCode.ESCAPE);
-            return true;
-
-
-
-        .FirstOrDefault(p => p.MainWindowTitle.Contains("Emissor gratuito de Nota Fiscal Eletrônica (NF-e"));
-        }
-        else if()
-        {
-
-        }
-        {
-            return false;
-        } */
 
 
         public async Task VerificarJanelas(string tipoEmissao)
@@ -291,16 +273,21 @@ namespace EmissorBot
 
         public async Task IniciarEmissao(string emitente, string tipoDeEmissao)
         {
-           await SelecionarEmitente(emitente);
-           await DadosDaNota();
-           await SelecionarDestinatario(destinatario);
-           await SelecionarProdutos(produtos, tipoDeEmissao);
-           await CalcularTotal();
-           await OPTransporte();
-           await OPCobranca();
-           await OPDescricao();
-           await OPPagamentos();
-           // await ValidarNT(); */
+
+
+            await SelecionarEmitente(emitente);
+            await DadosDaNota();
+            await SelecionarDestinatario(destinatario);
+            await SelecionarProdutos(produtos, tipoDeEmissao);
+            await CalcularTotal();
+            await OPTransporte();
+            await OPCobranca();
+            await OPDescricao();
+            await OPPagamentos();
+            await ValidarNT();
+            await AssinarNT();
+            await TransmitirNT();   
+            await SalvarNT();
 
         }
 
@@ -653,13 +640,13 @@ namespace EmissorBot
                 }
             }
 
-            }
+        }
 
         public async Task DadosProd(Produto item, int codigo)
         {
 
             await Task.Delay(5000);
-            sim.Keyboard.TextEntry((codigo ++).ToString()); // posso iterar e depois diminuir 1 na proxima linha antes da proxima iteração
+            sim.Keyboard.TextEntry((codigo++).ToString()); // posso iterar e depois diminuir 1 na proxima linha antes da proxima iteração
             await Task.Delay(400);
             sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
             await Task.Delay(300);
@@ -769,60 +756,60 @@ namespace EmissorBot
 
         public async Task CalcularTotal()
         {
-        //encaminhando para a aba totais.
-        await Task.Delay(5000);
-        for (int i = 0; i < 8; i++)
-        {
-            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            //encaminhando para a aba totais.
+            await Task.Delay(5000);
+            for (int i = 0; i < 8; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+            }
             await Task.Delay(300);
-        }
-        await Task.Delay(300);
-        sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+            sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
 
-        // clicar no botão calcular
+            // clicar no botão calcular
 
-        for (int i = 0; i < 3; i++)
-        {
-            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            for (int i = 0; i < 3; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+            }
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
             await Task.Delay(300);
-        }
-        sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-        await Task.Delay(300);
         }
 
         public async Task OPTransporte()
         {
 
-        //caminhar para aba transpote
+            //caminhar para aba transpote
 
-        sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-        await Task.Delay(300);
+            sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
 
-        for (int i = 0; i < 3; i++)
-        {
+            for (int i = 0; i < 3; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(300);
+            }
+            sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+            await Task.Delay(3000);
+            // sem ocorrencia de transporte (9)
+            await Task.Delay(5000);
             sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
             await Task.Delay(300);
-        }
-        sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-        await Task.Delay(300);
-        sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
-        await Task.Delay(3000);
-        // sem ocorrencia de transporte (9)
-        await Task.Delay(5000);
-        sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-        await Task.Delay(300);
-        sim.Keyboard.KeyPress(VirtualKeyCode.VK_9);
-        await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.VK_9);
+            await Task.Delay(300);
         }
 
         public async Task OPCobranca()
         {
-                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-                await Task.Delay(300);
-                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
-                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-                await Task.Delay(300);
+            sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(300);
+            sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+            await Task.Delay(300);
 
             if (vencimento != "")
             {
@@ -887,7 +874,7 @@ namespace EmissorBot
             }
             else
             {
-                for(int i=0; i<2; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
                     await Task.Delay(300);
@@ -967,7 +954,7 @@ namespace EmissorBot
 
             await Task.Delay(5000);
 
-            
+
             if (emitente != "RAFAEL DE VASCONCELLOS DE SOUZA")
             {  // percorrendo tipo
                 for (int i = 0; i < 14; i++)
@@ -1002,7 +989,7 @@ namespace EmissorBot
                     sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                     await Task.Delay(300);
                 }
-                for (int i = 0; i <2; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
                     await Task.Delay(300);
@@ -1036,10 +1023,129 @@ namespace EmissorBot
                 await Task.Delay(300);
             }
             sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(2000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
 
+        }
+        public async Task AssinarNT()
+        {
+            await Task.Delay(2000);
+
+            sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            await Task.Delay(1000);
+            for (int i = 0; i < 4; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+            }
+            sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+            await Task.Delay(1000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(2000);
+            sim.Keyboard.TextEntry("senha");
+            await Task.Delay(800);
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(600);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(600);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+        } 
+        public async Task TransmitirNT()
+        {
+            await Task.Delay(2000);
+            sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            await Task.Delay(1000);
+            for (int i = 0; i < 4; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+            }
+            sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+            await Task.Delay(1000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(2000);
+            sim.Keyboard.TextEntry("senha");
+            await Task.Delay(800);
+
+            for (int i = 0; i < 2; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+            }
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(600);
+           // procurar uma forma de clicar depois da transmissão
+        }
+
+        public async Task SalvarNT()
+        {
+            var date = DateTime.Now;
+
+
+            await Task.Delay(2000);
+            sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            await Task.Delay(1000);
+            for (int i = 0; i < 4; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+            }
+            sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+
+            await Task.Delay(5000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(5000);
+
+            for (int i=0; i<3; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(1000);
+            }
+
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+            await Task.Delay(5000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+
+            await Task.Delay(5000);
+            for (int i = 0; i < 5; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(1000);
+            }
+            sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+
+            await Task.Delay(5000);
+            for (int i = 0; i < 3; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(1000);
+            }
+
+            sim.Keyboard.KeyPress(VirtualKeyCode.VK_N);
+            await Task.Delay(1000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+            await Task.Delay(1000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.VK_A);
+            await Task.Delay(1000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+            await Task.Delay(1000);
+
+            sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+            await Task.Delay(1000);           
+            sim.Keyboard.TextEntry(destinatario + " - " + valorTotalNota.ToString() + " - " + date.Day + "/" + date.Month);
+
+            await Task.Delay(4000);
+            for (int i = 0; i < 2; i++)
+            {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(1000);
+            }
+            await Task.Delay(4000);
+            sim.Keyboard.KeyPress(VirtualKeyCode.RETURN);
         }
     }
 }
+    
 
 
         
