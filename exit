@@ -1,0 +1,29 @@
+[33mcommit ab833bd08890a58551ba634ed5d0cd79d12fdc47[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m
+Author: mIINguta <gustavo.minguta@gmail.com>
+Date:   Tue Oct 7 15:49:21 2025 -0300
+
+    feat: inserção das funções: AssinarNT(), TransmitirNT(), SalvarNT()
+
+[33mcommit 15c25bea4a014334647b75ebbeee935d5e40ba49[m
+Author: mIINguta <gustavo.minguta@gmail.com>
+Date:   Tue Aug 5 19:00:05 2025 -0300
+
+    feat: finalização da funcionalidade das opções simples e tributação normal
+
+[33mcommit 84f3069c99265611ab61c8e2bb9b638d984b4047[m
+Author: mIINguta <gustavo.minguta@gmail.com>
+Date:   Mon Aug 4 15:57:03 2025 -0300
+
+    feat: criação de condicionais para simples e tributação normal
+
+[33mcommit 056ec91f286b2aecc137f12429499f35084d41d6[m
+Author: mIINguta <gustavo.minguta@gmail.com>
+Date:   Mon Aug 4 15:04:46 2025 -0300
+
+    feat: mudança no campo tipo de emissão
+
+[33mcommit 4a490dc6a03863e4098cfa01d0a3fa5a947a9ea2[m
+Author: mIINguta <gustavo.minguta@gmail.com>
+Date:   Fri Jul 25 15:44:10 2025 -0300
+
+    Subindo primeira versão

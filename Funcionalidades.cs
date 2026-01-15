@@ -13,6 +13,9 @@ using System.Drawing;
 using System.Security.Cryptography.X509Certificates;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
+using OpenCvSharp;
+using System.Windows.Forms;
+using System.IO;
 
 namespace EmissorBot
 {
@@ -287,7 +290,7 @@ namespace EmissorBot
             await ValidarNT();
             await AssinarNT();
             await TransmitirNT();   
-            await SalvarNT();
+            //await SalvarNT();
 
         }
 
@@ -377,7 +380,7 @@ namespace EmissorBot
 
             // percorrendo até o consumidor final
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 5; i++)
             {
                 sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                 await Task.Delay(300);
@@ -410,11 +413,11 @@ namespace EmissorBot
             }
             sim.Keyboard.TextEntry("VENDA");
 
-            //mudar de aba (tab 10x)
-            for (int i = 0; i < 10; i++)
+            //mudar de aba (tab 14x)
+            for (int i = 0; i < 14; i++)
             {
                 sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
-                await Task.Delay(300);
+                await Task.Delay(300);       
             }
             //mudar de aba 
             for (int i = 0; i < 2; i++)
@@ -659,7 +662,7 @@ namespace EmissorBot
             //ncm
             sim.Keyboard.TextEntry("21069090");
             await Task.Delay(300);
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 4; i++)
             {
                 sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                 await Task.Delay(600);
@@ -702,7 +705,7 @@ namespace EmissorBot
             await Task.Delay(300);
             sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
             await Task.Delay(300);
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 21; i++)
             {
                 sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                 await Task.Delay(300);
@@ -1049,7 +1052,7 @@ namespace EmissorBot
             sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
             await Task.Delay(600);
             sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-        } 
+        }
         public async Task TransmitirNT()
         {
             await Task.Delay(2000);
@@ -1074,10 +1077,13 @@ namespace EmissorBot
             }
             sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
             await Task.Delay(600);
-           // procurar uma forma de clicar depois da transmissão
+
+            // aqui, darei por volta de 2 minutos para que a transmissão possa ser realizada.
+
+
         }
 
-        public async Task SalvarNT()
+    public async Task SalvarNT()
         {
             var date = DateTime.Now;
 
