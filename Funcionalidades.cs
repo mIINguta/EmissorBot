@@ -13,7 +13,6 @@ using System.Drawing;
 using System.Security.Cryptography.X509Certificates;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
-using OpenCvSharp;
 using System.Windows.Forms;
 using System.IO;
 
@@ -287,9 +286,9 @@ namespace EmissorBot
             await OPCobranca();
             await OPDescricao();
             await OPPagamentos();
-            await ValidarNT();
-            await AssinarNT();
-            await TransmitirNT();   
+            //await ValidarNT();
+            //await AssinarNT();
+            //await TransmitirNT();   
             //await SalvarNT();
 
         }
