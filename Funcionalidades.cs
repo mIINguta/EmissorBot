@@ -578,25 +578,39 @@ namespace EmissorBot
                     sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
                     await Task.Delay(900);
                     // situação tributária
-                    for (int i = 0; i < 5; i++)
+                    for (int i = 0; i < 6; i++)
                     {
                         sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                         await Task.Delay(300);
                     }
                     await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_4);
-                    await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_1);// selecionando a opção 41.
+                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_0);
                     await Task.Delay(300);
                     sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                     await Task.Delay(300);
-                    sim.Keyboard.KeyPress(VirtualKeyCode.VK_0);
-                    await Task.Delay(400);
 
-                    // opção ipi
+                    // selecionando valor da operação
+                    for (int i = 0; i < 6; i++)
+                    {
+                        sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                        await Task.Delay(300);
+                    }
+                    await Task.Delay(400);
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(300);
+                    sim.Keyboard.TextEntry(subtotalProd.ToString());
+                    await Task.Delay(300);
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(400);
+                    sim.Keyboard.TextEntry("3");
+                    await Task.Delay(400);
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+
+
+                    // opção pis
                     sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
                     await Task.Delay(300);
-                    for (int i = 0; i < 3; i++)
+                    for (int i = 0; i < 7; i++)
                     {
                         sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                         await Task.Delay(300);
