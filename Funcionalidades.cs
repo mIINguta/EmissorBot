@@ -483,8 +483,6 @@ namespace EmissorBot
         {
             int codigo = 0;
 
-            Console.WriteLine(tipoEmissao);
-
             if (tipoEmissao == "simples")
             {
                 foreach (var item in produtos)
@@ -947,7 +945,7 @@ namespace EmissorBot
             sim.Keyboard.KeyPress(VirtualKeyCode.UP);
             await Task.Delay(3000);
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 4; i++)
             {
                 sim.Keyboard.KeyPress(VirtualKeyCode.LEFT);
                 await Task.Delay(2500);
