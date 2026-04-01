@@ -727,19 +727,23 @@ namespace EmissorBot
         }
 
 
-        public async Task PisConfins(string tipoEmissao, double subtotalProd, string aliquota)
+        public async Task PisConfins(string tipoEmissao, double subtotalProd, string aliquota, string imp)
         {
 
             await Task.Delay(300);
 
             if (tipoEmissao == "tributacao normal")
             {
+
                 sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                 await Task.Delay(300);
-                for (int i = 0; i < 2; i++)
+                if (imp == "pis")
                 {
-                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
-                    await Task.Delay(300);
+                    for (int i = 0; i < 2; i++)
+                    {
+                        sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                        await Task.Delay(300);
+                    }
                 }
                 sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
                 await Task.Delay(300);
@@ -751,7 +755,6 @@ namespace EmissorBot
                 await Task.Delay(300);
                 sim.Keyboard.TextEntry(aliquota);
                 await Task.Delay(300);
-
             }
             else
             {
