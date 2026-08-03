@@ -530,7 +530,7 @@ namespace EmissorBot
 
                     // caminhar para opção 7
                     await Task.Delay(500);
-                    await PisConfins(tipoEmissao, 0, "0");
+                    await PisConfins(tipoEmissao, 0, "0", "pis");
                     //correndo para confins
                     sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
                     await Task.Delay(300);
@@ -541,7 +541,7 @@ namespace EmissorBot
                     sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
                     await Task.Delay(500);
 
-                    await PisConfins(tipoEmissao, 0, "0");
+                    await PisConfins(tipoEmissao, 0, "0", "cofins");
 
                     await Task.Delay(300);
                     for (int i = 0; i < 3; i++)
@@ -619,9 +619,9 @@ namespace EmissorBot
                     await Task.Delay(500);
                     sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
 
-                    // caminhar para opção 7
+                    // caminhar para opção 01
                     await Task.Delay(500);
-                    await PisConfins(tipoEmissao, subtotalProd, "0,65");
+                    await PisConfins(tipoEmissao, subtotalProd, "0,65", "pis");
 
                     //correndo para confins
                     sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
@@ -636,14 +636,35 @@ namespace EmissorBot
                     sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
                     await Task.Delay(500);
 
-                    await PisConfins(tipoEmissao, subtotalProd, "3");
+                    await PisConfins(tipoEmissao, subtotalProd, "3", "cofins");
+
+
 
                     await Task.Delay(300);
-                    for (int i = 0; i < 4; i++)
+
+
+                    // caminhar para o IBS/CBS
+                    sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+                    await Task.Delay(300);
+                    for (int i = 0; i < 3; i++)
                     {
                         sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                         await Task.Delay(600);
                     }
+                    sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+                    await Task.Delay(300);
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+                        await Task.Delay(600);
+                    }
+                    // lembrar que quando houver atualização de aliquota, mudar no código abaixo também. ESsa string é apenas 
+                    await IBSeCBS(subtotalProd, "0,001", "IBS");
+                    await Task.Delay(600);
+                    await IBSeCBS(subtotalProd, "0,009", "CBS");
+                    await Task.Delay(600);
+
                     sim.Keyboard.KeyPress(VirtualKeyCode.LEFT);
                     await Task.Delay(3000);
 
@@ -731,12 +752,13 @@ namespace EmissorBot
         {
 
             await Task.Delay(300);
-
+            
             if (tipoEmissao == "tributacao normal")
             {
 
                 sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
                 await Task.Delay(300);
+                // no caso, o confins já estará pré definido, então não precisa entrar nesse if aqui, só seguir ali em baixo.
                 if (imp == "pis")
                 {
                     for (int i = 0; i < 2; i++)
@@ -771,6 +793,125 @@ namespace EmissorBot
             }
         }
 
+        public async Task IBSeCBS(double subtotalProd, string aliquota, string imp)
+        {
+            if (imp == "IBS")
+            {
+
+                for (int i = 0; i < 2; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(600);
+                }
+                // PERCORRENDO PRIMEIRO SELECT
+                for (int i = 0; i < 3; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                    await Task.Delay(600);
+                }
+                // ESCOLHENDO 000- TRIBUTACAO
+                sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+                await Task.Delay(600);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+
+                //PERCORRENDO SEGUNDO SELECT
+                for (int i = 0; i < 3; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.DOWN);
+                    await Task.Delay(600);
+                }
+                /// ESCOLHENDDO 00001 - IBS E CBS
+                await Task.Delay(600);
+                sim.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+                await Task.Delay(600);
+                for (int i = 0; i < 2; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(600);
+                }
+                // valor base de Cálculo IBS e CBS.
+                sim.Keyboard.TextEntry(subtotalProd.ToString());
+                await Task.Delay(600);
+
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+
+                //calculando e inserindo valor. (valor do IBS)
+                string VL_IBS = ((subtotalProd * 0.001).ToString());
+                await Task.Delay(600);
+                sim.Keyboard.TextEntry(VL_IBS);
+
+                //caminhando para aliquota IBS
+                for (int i = 0; i < 2; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(600);
+                }
+                //ibs percentual
+                sim.Keyboard.TextEntry(aliquota);
+                await Task.Delay(600);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+                // ibs uf
+                sim.Keyboard.TextEntry(VL_IBS);
+                await Task.Delay(600);
+                // percorrendo para ibs municipio
+
+                for (int i = 0; i < 6; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(600);
+                }
+
+                //ibs percentual mun
+                sim.Keyboard.TextEntry("0,0");
+                await Task.Delay(600);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+                // ibs mun
+                sim.Keyboard.TextEntry("0,0");
+
+                // voltando para a aba IBS
+                await Task.Delay(600);
+                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+                await Task.Delay(600);
+                for (int i = 0; i < 9; i++)
+                {
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+                }
+                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+                await Task.Delay(600);
+                }
+
+                else
+                {
+                // aqui, ele estara na aba IBS, então clicamos na arrow right para irmos para CBS.
+                sim.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+                await Task.Delay(600);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+                sim.Keyboard.TextEntry(aliquota);
+                await Task.Delay(600);
+                sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                await Task.Delay(600);
+
+                string VL_CBS = ((subtotalProd * 0.009).ToString());
+                await Task.Delay(600);
+                sim.Keyboard.TextEntry(VL_CBS);
+                await Task.Delay(600);
+                sim.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+                await Task.Delay(600);
+                for (int i = 0; i < 12; i++)
+                {
+                    sim.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                    await Task.Delay(600);
+                }
+                sim.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+                await Task.Delay(600);
+
+            }
+        }
         public async Task CalcularTotal()
         {
             //encaminhando para a aba totais.
